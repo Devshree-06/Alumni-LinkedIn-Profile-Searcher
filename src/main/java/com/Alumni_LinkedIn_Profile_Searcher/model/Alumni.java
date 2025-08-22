@@ -1,4 +1,4 @@
-package model;
+package com.Alumni_LinkedIn_Profile_Searcher.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
