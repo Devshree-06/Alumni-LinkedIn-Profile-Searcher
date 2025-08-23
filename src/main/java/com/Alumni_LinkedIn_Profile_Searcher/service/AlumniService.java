@@ -1,5 +1,6 @@
 package com.Alumni_LinkedIn_Profile_Searcher.service;
 
+import com.Alumni_LinkedIn_Profile_Searcher.DTO.AlumniSearchDTO;
 import lombok.extern.slf4j.Slf4j;
 import com.Alumni_LinkedIn_Profile_Searcher.model.Alumni;
 import com.Alumni_LinkedIn_Profile_Searcher.model.Request.ALumniSearchReq;
@@ -27,7 +28,6 @@ public class AlumniService {
                 .map(savedAlumni-> ResponseEntity.ok(savedAlumni));
     }
 
-    // Fetch all alumni from DB
     public Flux<ResponseEntity<Alumni>> getAllAlumni() {
         return alumniRepository.findAll()
                 .map(alumni->ResponseEntity.ok(alumni));
@@ -36,15 +36,34 @@ public class AlumniService {
     public Mono<ResponseEntity<AlumniSearchRes>> searchAlumni(ALumniSearchReq request){
 
         return phantomIntegrationService.getLinkedInSearch(request)
-                .collectList()
                 .map(result->{
-                    log.info("The result of the Phantom API is : {}", result);
+
+                    AlumniSearchDTO alumniFields = new AlumniSearchDTO();
+                    alumniFields.setName((String) result.getOrDefault("fullName",""));
+                    alumniFields.setCurrentRole((String) result.getOrDefault("jobTitle",""));
+                    alumniFields.setUniversity((String) result.getOrDefault("school",""));
+                    alumniFields.setLocation((String) result.getOrDefault("location",""));
+                    alumniFields.setLinkedInHeadline((String) result.getOrDefault("headline",""));
+
+                    String passOutYear = (String) result.get("schoolDateRange");
+                    if(passOutYear!=null && passOutYear.contains("-")){
+                        String [] parts = passOutYear.split("-");
+                        alumniFields.setPassoutYear(parts[1].trim());
+                    }
+
+                    return alumniFields;
+
+                })
+                .collectList()
+                .map(mappedData->{
+
+                    log.info("The final phantom output is : {}",mappedData);
 
                     return ResponseEntity.ok(
                             AlumniSearchRes.builder()
-                                    .status("success")
-                                    .message("Raw Phantom API response")
-                                    .data(result) // <-- directly putting raw list here
+                                    .status("Success")
+                                    .message("LinkedIn data fetched successfully.")
+                                    .data(mappedData)
                                     .build()
                     );
                 });
