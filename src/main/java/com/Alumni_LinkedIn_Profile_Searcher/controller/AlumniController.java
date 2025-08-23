@@ -11,6 +11,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import com.Alumni_LinkedIn_Profile_Searcher.service.AlumniService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/alumni")
 @Slf4j
@@ -26,9 +28,8 @@ public class AlumniController {
     }
 
     @GetMapping("/all")
-    public Flux<ResponseEntity<Alumni>> findAllAlumni(){
-        return alumniService.getAllAlumni()
-                .doOnNext(res-> log.info("Alumni details fetched successfully"));
+    public Flux<Alumni> findAllAlumni() {
+        return alumniService.getAllAlumni();
     }
 
     @PostMapping("/search")

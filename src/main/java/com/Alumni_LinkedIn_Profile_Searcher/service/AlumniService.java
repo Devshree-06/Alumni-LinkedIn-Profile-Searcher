@@ -12,6 +12,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import com.Alumni_LinkedIn_Profile_Searcher.repository.AlumniRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 @Slf4j
@@ -28,9 +31,9 @@ public class AlumniService {
                 .map(savedAlumni-> ResponseEntity.ok(savedAlumni));
     }
 
-    public Flux<ResponseEntity<Alumni>> getAllAlumni() {
+    public Flux<Alumni> getAllAlumni() {
         return alumniRepository.findAll()
-                .map(alumni->ResponseEntity.ok(alumni));
+                .doOnNext(a -> log.info("Alumni fetched: {}", a.getName()));
     }
 
     public Mono<ResponseEntity<AlumniSearchRes>> searchAlumni(ALumniSearchReq request){
@@ -55,17 +58,32 @@ public class AlumniService {
 
                 })
                 .collectList()
-                .map(mappedData->{
+                .flatMap(alumniDTOList -> {
+                    List<Alumni> alumniEntities = new ArrayList<>();
+                    for (AlumniSearchDTO dto : alumniDTOList) {
+                        Alumni entity = new Alumni();
+                        entity.setName(dto.getName());
+                        entity.setCurrentRole(dto.getCurrentRole());
+                        entity.setUniversity(dto.getUniversity());
+                        entity.setLocation(dto.getLocation());
+                        entity.setLinkedinHeadline(dto.getLinkedInHeadline());
+                        entity.setPassoutYear(dto.getPassoutYear());
+                        alumniEntities.add(entity);
+                    }
 
-                    log.info("The final phantom output is : {}",mappedData);
+                    return alumniRepository.saveAll(alumniEntities)
+                            .collectList()
+                            .map(savedEntities -> {
+                                log.info("Saved alumni data: {}", savedEntities);
 
-                    return ResponseEntity.ok(
-                            AlumniSearchRes.builder()
-                                    .status("Success")
-                                    .message("LinkedIn data fetched successfully.")
-                                    .data(mappedData)
-                                    .build()
-                    );
+                                return ResponseEntity.ok(
+                                        AlumniSearchRes.builder()
+                                                .status("Success")
+                                                .message("LinkedIn data fetched and saved successfully.")
+                                                .data(alumniDTOList)
+                                                .build()
+                                );
+                            });
                 });
 
     }
