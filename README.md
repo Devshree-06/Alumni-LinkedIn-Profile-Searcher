@@ -43,10 +43,4 @@ App runs at `http://localhost:8080`
 ---
 
 
-## License
-
-[MIT](LICENSE)
-
----
-
 Maintainer: [Devshree-06](https://github.com/Devshree-06)
