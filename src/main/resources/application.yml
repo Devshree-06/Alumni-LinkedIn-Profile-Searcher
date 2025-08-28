@@ -1,13 +1,13 @@
 spring:
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/AlumniLinkedInProfileSearcher
-    username: postgres
-    password: "Root@2002"
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
 
 Phantom:
-  apiKey: "xHFZbNJziwYfzWcVHwOw0tez2Ltu0jA0EnrxaPkdL7A"
+  apiKey: ${PHANTOM_API_KEY}
   baseUrl: "https://api.phantombuster.com/api/v2"
   linkedInUrl: "https://www.linkedin.com/search/results/people/?keywords="
   agentId: "1996040450520958"
-  sessionCookie: "AQEDATZodaEAcO08AAABmMf5UcwAAAGY7AXVzE4AGQBpDgDyRu2Yxkcq10K3Nh4ymY4vx1wk8JOheCSjwvK3-JSD-F5AOsK_Dlx5vAsFXRpr_VsVY743rXIOgmX6sMGH73crj-uR5eiDK6zf69_Np61n"
+  sessionCookie: ${SESSION_COOKIE}
